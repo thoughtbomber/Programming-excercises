@@ -1,0 +1,295 @@
+#include <iostream>
+
+using namespace std;
+
+class node
+{
+public:
+	node():coee(0), expo(0), next(NULL) {}
+	node(int coee, int expo) : coee(coee), expo(expo), next(NULL) {}
+	node(const node &n)
+	{
+		coee = n.coee;
+		expo = n.expo;
+		next = n.next;
+	}
+	inline void insertafter(node *n);
+	inline node* returnnext();
+	const int getcoee() const { return coee; }
+	node*& getnext() { return next; }
+	void modcoee(int m) { coee += m; }
+	const int getexpo() const { return expo; }
+	~node() { }
+private:
+	int coee,expo;
+	node *next;
+};
+
+inline void node::insertafter(node *n)
+{
+	n->next = next;
+	next = n;
+}
+
+inline node* node::returnnext()
+{
+	return next;
+}
+
+class list
+{
+public:
+	list():front(NULL), rear(NULL),count(0){}
+	list(const list &l);
+	~list();
+	bool isempty();
+	void input();
+	void output(); // output for confirmation of input
+	void insertend(int c, int e);
+	node* getfront() const { return front; }
+	node* getrear() const { return rear; }
+	node* &resetrear() { return rear; }
+	int count;
+private:
+	node* front,* rear;
+};
+
+list::list(const list &l)
+{
+	front = l.front;
+	rear = l.rear;
+	count = l.count;
+}
+
+list::~list()
+{
+	node* temp=new node();
+	while (front != rear)
+	{
+		temp = front;
+		front = front->returnnext();
+		delete temp;
+		count--;
+	}
+	delete front;
+}
+
+bool list::isempty()
+{
+	return rear == NULL;
+}
+
+void list::input()
+{
+	int m;
+	int c, e;
+	cin >> m;
+	if (m == 0)
+	{
+		insertend(0, 0);
+	}
+	else
+	{
+		for (int i = 1;i <= m;i++)
+		{
+			cin >> c>> e;
+			insertend(c, e);
+			count++;
+		}
+	}
+	
+		
+}
+
+void list::insertend(int c, int e)
+{
+	node* n=new node(c,e);
+	if (front == NULL) front = rear = n;
+	else
+	{
+		rear->insertafter(n);
+		rear = n;
+	}
+}
+
+void sortelement(list &l)
+{
+	if (l.getfront() == NULL) return;
+	node* temp;
+	node* before = l.getfront();
+	node* after = before->returnnext();
+	while (after != NULL)
+	{
+		while (after->getcoee() == 0)
+		{
+			temp = after;
+			before->getnext() = after->returnnext();
+			delete temp;
+			l.count--;
+			after = before->returnnext();
+			if (after == NULL) break;
+		}
+		if (before->returnnext() == NULL)
+		{
+			l.resetrear() = before;
+			break;
+		}
+		else
+		{
+			before = before->returnnext();
+			after = before->returnnext();
+		}
+	}
+}
+
+void add(const list &l1, const list &l2)
+{
+	node* n1, *n2;
+	list ladd;
+	n1 = l1.getfront();
+	n2 = l2.getfront();
+	while (n1!= NULL && n2 != NULL)
+	{
+		if (n1->getexpo() > n2->getexpo())
+		{
+			ladd.insertend(n1->getcoee(), n1->getexpo());
+			ladd.count++;
+			n1 = n1->returnnext();
+		}
+		else if (n1->getexpo() < n2->getexpo())
+		{
+			ladd.insertend(n2->getcoee(), n2->getexpo());
+			ladd.count++;
+			n2 = n2->returnnext();
+		}
+		else
+		{
+			if ((n1->getcoee() + n2->getcoee()) == 0)
+			{
+				n1 = n1->returnnext();
+				n2 = n2->returnnext();
+			}
+			else
+			{
+				ladd.insertend((n1->getcoee() + n2->getcoee()), n2->getexpo());
+				ladd.count++;
+				n1 = n1->returnnext();
+				n2 = n2->returnnext();
+			}
+		}
+	}
+	if (n1 != NULL)
+	{
+		ladd.insertend(n1->getcoee(), n1->getexpo());
+		ladd.count++;
+		n1 = n1->returnnext();
+	}
+	if (n2 != NULL)
+	{
+		ladd.insertend(n2->getcoee(), n2->getexpo());
+		ladd.count++;
+		n2 = n2->returnnext();
+	}
+	sortelement(ladd);
+	ladd.output();
+}
+
+
+void mul(const list &l1, const list &l2)
+{
+	node* n1, *n2;
+	int ncoee, nexpo;
+	list lmul;
+	n1 = l1.getfront();
+	n2 = l2.getfront();
+	while (n2 != NULL)
+	{
+		ncoee = n1->getcoee() * n2->getcoee();
+		nexpo = n1->getexpo() + n2->getexpo();
+		lmul.insertend(ncoee, nexpo);
+		lmul.count++;
+		n2 = n2->returnnext();
+	}
+	n1 = n1->returnnext();
+	node* lnode;
+	while (n1 != NULL)
+	{
+		lnode = lmul.getfront();
+		n2 = l2.getfront();
+		while (n2 != NULL)
+		{
+			ncoee = n1->getcoee() * n2->getcoee();
+			nexpo = n1->getexpo() + n2->getexpo();
+			while (lnode->returnnext() != NULL)
+			{
+				if (lnode->getexpo() > nexpo && lnode->returnnext()->getexpo() < nexpo)
+				{
+					lnode->insertafter(new node(ncoee, nexpo));
+					lmul.count++;
+					break;
+				}			
+				if (lnode->getexpo() == nexpo)
+				{
+					lnode->modcoee(ncoee);
+					break;
+				}
+				lnode = lnode->returnnext();
+			}		
+			if (lnode == lmul.getrear())
+			{
+				if (lnode->getexpo() == nexpo) lnode->modcoee(ncoee);
+				else
+				{
+					lmul.insertend(ncoee, nexpo);
+					lmul.count++;
+				}
+			}		
+			n2 = n2->returnnext();
+		}
+		n1 = n1->returnnext();
+	}
+	sortelement(lmul);
+	lmul.output();
+}
+
+
+//output the list for confirmation of a successful input
+ 
+void list::output()
+{
+	if (front==NULL)
+	{
+		cout << "0" << " " << "0" << endl;
+	}	
+	else if (front == rear)
+	{
+		if(front->getcoee()==0) cout << "0" << " " << "0" << endl;
+		else cout << rear->getcoee() << " " << rear->getexpo() << endl;
+	}
+	else
+	{ 
+		node* temp;
+		temp = front;
+		while (temp != rear)
+		{
+			cout << temp->getcoee() << " " << temp->getexpo() << " ";
+			temp = temp->returnnext();
+		}
+		cout << rear->getcoee() << " " << rear->getexpo() << endl;
+	}
+	
+}
+
+
+int main() 
+{
+	list l1, l2;
+	l1.input();
+	l2.input();
+	mul(l1, l2);
+	add(l1, l2);
+	
+//	l1.output();
+//	l2.output();
+	return 0;
+}
