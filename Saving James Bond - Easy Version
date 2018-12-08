@@ -1,0 +1,116 @@
+
+#include <iostream>
+#include <vector>
+//#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class coordinate
+{
+public:
+	int x, y;
+	coordinate(int x, int y) :x(x), y(y) {}
+	~coordinate() {}
+};
+
+class total
+{
+public:
+	vector<coordinate> croc;
+	int jump_dist;
+	vector<int> visited;
+	total(int jump_dist) :jump_dist(jump_dist) {}
+	~total() {}
+};
+
+bool isjump(const total & tcase, int from, int to)
+{
+	double distance;
+	if (from == -1)
+	{
+		distance = tcase.croc[to].x*tcase.croc[to].x + tcase.croc[to].y*tcase.croc[to].y;
+		distance = sqrt(distance);
+		if ((7.5 + tcase.jump_dist) > distance) return true;// The diameter of the island is 15
+		else return false;
+	}
+	else
+	{
+		distance = (tcase.croc[to].x - tcase.croc[from].x)*(tcase.croc[to].x - tcase.croc[from].x)
+			+ (tcase.croc[to].y - tcase.croc[from].y)*(tcase.croc[to].y - tcase.croc[from].y);
+		distance = sqrt(distance);
+		if (tcase.jump_dist > distance) return true;
+		else if (abs(tcase.jump_dist - distance) < 0.00001) return true;
+		else return false;
+	}
+}
+
+bool escape(total &tcase, int i)
+{
+	if ((50 - abs(tcase.croc[i].x)) <= tcase.jump_dist || (50 - abs(tcase.croc[i].y)) <= tcase.jump_dist)
+		return true;
+	else return false;
+}
+
+bool dfs(total &tcase,int i)
+{
+	bool res=false;
+	if (escape(tcase, i)) res=true;
+	else
+	{
+		for (int j = 0; j < tcase.visited.size();j++)//&& 
+		{
+			if (tcase.visited[j] == 0)
+			{
+				if (isjump(tcase, i, j))
+				{
+					tcase.visited[j] = 1;
+					res = dfs(tcase, j);
+				}
+			}
+		}
+	}
+	return res;
+}
+
+void save_007(total & tcase)
+{
+	bool result=false;
+	if (tcase.visited.size() == 0)
+	{
+		if ((50 - 7.5 - tcase.jump_dist) <= tcase.jump_dist || (50 - 7.5 - tcase.jump_dist) <= tcase.jump_dist)
+			result = true;
+	}
+	else
+	{
+		for (int i = 0;i != tcase.visited.size();i++)
+		{
+			if (tcase.visited[i] == 0 && isjump(tcase, -1, i))
+			{
+				tcase.visited[i] = 1;
+				result = dfs(tcase, i);
+			}
+			if (result) break;
+		}
+	}
+	if (result) cout << "Yes" << endl;
+	else cout << "No" << endl;
+}
+
+
+
+int main()
+{
+	int n, jump_dist;
+	cin >> n >> jump_dist;
+	total tcase(jump_dist);
+	int x, y;
+	for (int i = 0;i != n;i++)
+	{
+		cin >> x >> y;
+		tcase.croc.push_back(coordinate(x, y));
+		tcase.visited.push_back(0);
+	}
+	save_007(tcase);
+	return 0;
+}
