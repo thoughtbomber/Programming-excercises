@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 24 20:11:36 2019
+
+@author: Adam
+"""
+def merge(num,l,mid,r):
+    temp=[]
+    st=l
+    mid_c=mid+1
+    while st<=mid and mid_c<=r:
+        if num[st]<num[mid_c]:
+            temp.append(num[st])
+            st=st+1
+        else:
+            temp.append(num[mid_c])
+            mid_c=mid_c+1
+    while st<=mid:
+        temp.append(num[st])
+        st=st+1 
+    while mid_c<=r:
+        temp.append(num[mid_c])
+        mid_c=mid_c+1
+    num[l:r+1]=temp
+
+
+def divide_and_conquer(num,l,r):   
+    if l<r:
+        mid=l+(r-l)//2
+        divide_and_conquer(num,l,mid)
+        divide_and_conquer(num,mid+1,r)
+        merge(num,l,mid,r)       
+
+def main():
+    n=input()
+    num=[int(i) for i in input().split()]
+    divide_and_conquer(num,0,len(num)-1)   
+    string=' '
+    for i in num:
+        string=string+str(i)+' '
+    print(string.strip())
+
+if __name__=='__main__':
+    main()
