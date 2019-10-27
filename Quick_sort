@@ -1,0 +1,35 @@
+
+
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 24 20:11:36 2019
+
+@author: Adam
+"""
+def quick_sort(num,l,r):
+    if l>=r:
+        return
+    ls=l
+    rs=r
+    ini=num[l]
+    while ls!=rs:
+        while ls<rs and num[rs]>=ini:
+            rs-=1
+        num[ls],num[rs]=num[rs],num[ls]
+        while ls<rs and num[ls]<=ini:
+            ls+=1
+        num[ls],num[rs]=num[rs],num[ls]
+    quick_sort(num,l,ls-1)
+    quick_sort(num,ls+1,r)
+
+def main():
+    n=input()
+    num=[int(i) for i in input().split()]
+    quick_sort(num,0,len(num)-1)   
+    string=' '
+    for i in num:
+        string=string+str(i)+' '
+    print(string.strip())
+
+if __name__=='__main__':
+    main()
